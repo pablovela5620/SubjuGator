@@ -31,8 +31,13 @@ import PIL.ImageDraw as ImageDraw
 import PIL.ImageFont as ImageFont
 import six
 import tensorflow as tf
+import sys
+import rospkg
 
-from object_detection.core import standard_fields as fields
+rospack = rospkg.RosPack()
+sys.path.append(rospack.get_path('sub8_perception') + '/ml_classifiers/path_marker/protos')
+
+# from object_detection.core import standard_fields as fields
 
 
 _TITLE_LEFT_MARGIN = 10

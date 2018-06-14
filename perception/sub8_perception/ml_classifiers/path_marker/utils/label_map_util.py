@@ -19,7 +19,12 @@ import logging
 
 import tensorflow as tf
 from google.protobuf import text_format
-from object_detection.protos import string_int_label_map_pb2
+import rospkg
+import sys
+rospack = rospkg.RosPack()
+sys.path.append(rospack.get_path('sub8_perception') + '/ml_classifiers/path_marker/protos')
+
+from protos import string_int_label_map_pb2
 
 
 def _validate_label_map(label_map):

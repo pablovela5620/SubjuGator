@@ -69,10 +69,11 @@ class classifier(object):
 if __name__ == '__main__':
     print('running')
     # Current working directory
-    CWD_PATH = os.getcwd()
+    CWD_PATH = rospack.get_path(
+        'sub8_perception') + '/ml_classifiers/path_marker/'
 
     # Path to frozen model and labelmap
-    WEIGHTS_DIR = 'Path_Inference/faster_rcnn_inception_v2_path/frozen_inference_graph.pb'
+    WEIGHTS_DIR = CWD_PATH + 'Path_Inference/faster_rcnn_inception_v2_path/frozen_inference_graph.pb'
 
     PATH_TO_CKPT = WEIGHTS_DIR
     PATH_TO_LABELS = os.path.join(CWD_PATH, 'Path_Inference',
@@ -96,7 +97,10 @@ if __name__ == '__main__':
             od_graph_def.ParseFromString(serialized_graph)
             tf.import_graph_def(od_graph_def, name='')
 
-        sess = tf.Session(graph=detection_graph)
+        config = tf.ConfigProto(intra_op_parallelism_threads=2, inter_op_parallelism_threads=0, \
+                           allow_soft_placement=True, device_count = {'CPU': 1})
+
+        sess = tf.Session(graph=detection_graph, config=config)
 
     # Input tensor is the image
     image_tensor = detection_graph.get_tensor_by_name('image_tensor:0')
