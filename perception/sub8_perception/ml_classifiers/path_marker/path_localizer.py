@@ -9,6 +9,7 @@ import rospkg
 
 from cv_bridge import CvBridge, CvBridgeError
 from sensor_msgs.msg import Image
+from sensor_msgs.msg import RegionOfInterest
 
 rospack = rospkg.RosPack()
 
@@ -30,6 +31,8 @@ class classifier(object):
                                      Image, self.img_callback)
 
         self.pub1 = rospy.Publisher('path_label', Image, queue_size=1)
+        self.pub2 = rospy.Publisher(
+            'path_label_roi', RegionOfInterest, queue_size=1)
 
     def img_callback(self, data):
         try:
@@ -58,6 +61,24 @@ class classifier(object):
             use_normalized_coordinates=True,
             line_thickness=8,
             min_score_thresh=0.60)
+        points = boxes
+        im_width, im_height, _ = cv_image.shape
+        for j in range(len(points)):
+            if scores[0][j] < 0.60:
+                continue
+            for k in range(len(points[j])):
+                (ymin, xmin, ymax, xmax) = points[j][k]
+                (left, right, top,
+                 bottom) = (xmin * im_width, xmax * im_width, ymin * im_height,
+                            ymax * im_height)
+                width = abs(right - left)
+                height = abs(top - bottom)
+                self.pub2.publish(
+                    RegionOfInterest(
+                        x_offset=left,
+                        y_offset=top,
+                        height=height,
+                        width=width))
 
         image = cv2.resize(cv_image, (720, 480))
         try:
